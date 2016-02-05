@@ -20,9 +20,9 @@
             if (!path) return { "result": filesystemData }
 
             /*
-                subdirÊÇ´æ·ÅÄ¿Â¼»òÎÄ¼şµÄÊı×é
-                currentPathÊÇ´æ·ÅÂ·¾¶µÄÊı×é£¬½«Â·¾¶×Ö·û´®·Ö¸î¶ø³ÉµÄÊı×é£¬Èç joomla/java£¬·Ö¸î³É ['joomla', 'java']
-                level±íÊ¾µ±Ç°¶Ô±ÈµÄcurrentPathµÄÉî¶È£¬Èç¹ûµ±Ç°Éî¶ÈÎ´ÄÜÕÒµ½Æ¥ÅäÏî£¬Ôò·µ»Ø´íÎó£»Èç¹ûÒÑ¾­ÕÒµ½Æ¥ÅäÏî£¬²¢ÇÒÒÑ¾­´ïµ½currentPathµÄ×î´óÉî¶È£¬Ôò·µ»ØÆ¥ÅäÏîµÄsubdirÊı×éÄÚÈİ
+                subdiræ˜¯å­˜æ”¾ç›®å½•æˆ–æ–‡ä»¶çš„æ•°ç»„
+                currentPathæ˜¯å­˜æ”¾è·¯å¾„çš„æ•°ç»„ï¼Œå°†è·¯å¾„å­—ç¬¦ä¸²åˆ†å‰²è€Œæˆçš„æ•°ç»„ï¼Œå¦‚ joomla/javaï¼Œåˆ†å‰²æˆ ['joomla', 'java']
+                levelè¡¨ç¤ºå½“å‰å¯¹æ¯”çš„currentPathçš„æ·±åº¦ï¼Œå¦‚æœå½“å‰æ·±åº¦æœªèƒ½æ‰¾åˆ°åŒ¹é…é¡¹ï¼Œåˆ™è¿”å›é”™è¯¯ï¼›å¦‚æœå·²ç»æ‰¾åˆ°åŒ¹é…é¡¹ï¼Œå¹¶ä¸”å·²ç»è¾¾åˆ°currentPathçš„æœ€å¤§æ·±åº¦ï¼Œåˆ™è¿”å›åŒ¹é…é¡¹çš„subdiræ•°ç»„å†…å®¹
              */
             var getPathFileListRecursive = function(subdir, currentPath, level) {
                 for (var i=0,len=subdir.length; i<len; i++) {
@@ -98,7 +98,7 @@
         FileNavigator.prototype.refresh = function() {
             var self = this;
             var path = self.currentPath.join('/');
-            console.log(self.currentPath, path)
+            // console.log(self.currentPath, path)
             var data = self.list()
             self.fileList = (data.result || []).map(function(file) {
                 return new Item(file, self.currentPath);
