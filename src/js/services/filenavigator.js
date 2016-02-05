@@ -6,11 +6,44 @@
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
         var FileNavigator = function() {
+            this.basedata = fileManagerConfig.filesystemData;
             this.requesting = false;
             this.fileList = [];
             this.currentPath = [];
             this.history = [];
             this.error = '';
+        };
+
+        FileNavigator.prototype.getPathFileList = function(path) {
+            var filesystemData = this.basedata;
+
+            if (!path) return { "result": filesystemData }
+
+            /*
+                subdir是存放目录或文件的数组
+                currentPath是存放路径的数组，将路径字符串分割而成的数组，如 joomla/java，分割成 ['joomla', 'java']
+                level表示当前对比的currentPath的深度，如果当前深度未能找到匹配项，则返回错误；如果已经找到匹配项，并且已经达到currentPath的最大深度，则返回匹配项的subdir数组内容
+             */
+            var getPathFileListRecursive = function(subdir, currentPath, level) {
+                for (var i=0,len=subdir.length; i<len; i++) {
+                    var item = subdir[i];
+                    var currentLevelMatch = false;
+                    if (currentPath[level]==item.name) {
+                        currentLevelMatch = true;
+                        if (currentPath.length==(level+1)) {
+                            return { "result" : item.subdir }
+                        } else {
+                            return getPathFileListRecursive(item.subdir, currentPath, level+1)
+                        }
+                    }
+                    if (i==(len-1) && !currentLevelMatch) return { "result" : null }
+                }
+            };
+
+            var currentPath = path.split('/');
+            // console.log(currentPath)
+            var level = 0;
+            return getPathFileListRecursive(filesystemData, currentPath, level)
         };
 
         FileNavigator.prototype.deferredHandler = function(data, deferred, defaultMsg) {
@@ -46,25 +79,39 @@
             self.fileList = [];
             self.error = '';
 
-            $http.post(fileManagerConfig.listUrl, data).success(function(data) {
-                self.deferredHandler(data, deferred);
-            }).error(function(data) {
-                self.deferredHandler(data, deferred, 'Unknown error listing, check the response');
-            })['finally'](function() {
-                self.requesting = false;
-            });
-            return deferred.promise;
+            var retData = self.getPathFileList(path)
+
+            self.requesting = false;
+
+            return retData;
+
+            // $http.post(fileManagerConfig.listUrl, data).success(function(data) {
+            //     self.deferredHandler(data, deferred);
+            // }).error(function(data) {
+            //     self.deferredHandler(data, deferred, 'Unknown error listing, check the response');
+            // })['finally'](function() {
+            //     self.requesting = false;
+            // });
+            // return deferred.promise;
         };
 
         FileNavigator.prototype.refresh = function() {
             var self = this;
             var path = self.currentPath.join('/');
-            return self.list().then(function(data) {
-                self.fileList = (data.result || []).map(function(file) {
-                    return new Item(file, self.currentPath);
-                });
-                self.buildTree(path);
+            console.log(self.currentPath, path)
+            var data = self.list()
+            self.fileList = (data.result || []).map(function(file) {
+                return new Item(file, self.currentPath);
             });
+            self.buildTree(path);
+            
+            // return self.list().then(function(data) {
+            //     console.log(data)
+            //     self.fileList = (data.result || []).map(function(file) {
+            //         return new Item(file, self.currentPath);
+            //     });
+            //     self.buildTree(path);
+            // });
         };
         
         FileNavigator.prototype.buildTree = function(path) {

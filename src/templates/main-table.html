@@ -8,21 +8,15 @@
                 </a>
             </th>
             <th class="hidden-xs">
-                <a href="" ng-click="order('model.size')">
-                    {{"size" | translate}}
-                    <span class="sortorder" ng-show="predicate[1] === 'model.size'" ng-class="{reverse:reverse}"></span>
+                <a href="" ng-click="order('model.createtime')">
+                    {{"createtime" | translate}}
+                    <span class="sortorder" ng-show="predicate[1] === 'model.createtime'" ng-class="{reverse:reverse}"></span>
                 </a>
             </th>
             <th class="hidden-sm hidden-xs">
-                <a href="" ng-click="order('model.date')">
-                    {{"date" | translate}}
-                    <span class="sortorder" ng-show="predicate[1] === 'model.date'" ng-class="{reverse:reverse}"></span>
-                </a>
-            </th>
-            <th class="hidden-sm hidden-xs">
-                <a href="" ng-click="order('model.permissions')">
-                    {{"permissions" | translate}}
-                    <span class="sortorder" ng-show="predicate[1] === 'model.permissions'" ng-class="{reverse:reverse}"></span>
+                <a href="" ng-click="order('model.updatetime')">
+                    {{"updatetime" | translate}}
+                    <span class="sortorder" ng-show="predicate[1] === 'model.updatetime'" ng-class="{reverse:reverse}"></span>
                 </a>
             </th>
             <th class="text-right"></th>
@@ -52,14 +46,11 @@
                     {{item.model.name | strLimit : 64}}
                 </a>
             </td>
-            <td class="hidden-xs">
-                {{item.model.sizeKb()}}kb
+            <td class="hidden-sm hidden-xs">
+                {{item.model.createtime | formatDate }}
             </td>
             <td class="hidden-sm hidden-xs">
-                {{item.model.date | formatDate }}
-            </td>
-            <td class="hidden-sm hidden-xs">
-                {{item.model.perms.toCode(item.model.type === 'dir'?'d':'-')}}
+                {{item.model.updatetime | formatDate }}
             </td>
             <td class="text-right">
                 <div ng-include="config.tplPath + '/item-toolbar.html'"></div>

@@ -4,7 +4,7 @@
 
         var values = {
             appName: 'https://github.com/joni2back/angular-filemanager',
-            defaultLang: 'en',
+            defaultLang: 'zh',
 
             listUrl: 'bridges/php/handler.php',
             uploadUrl: 'bridges/php/handler.php',

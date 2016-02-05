@@ -19,6 +19,12 @@
         $scope.uploadFileList = [];
         $scope.viewTemplate = $cookies.viewTemplate || 'main-table.html';
 
+	// $scope.$watch(function() {
+	//     return window.document.body.scrollHeight;
+	// }, function() {
+	//     var iframe = window.parent.document.getElementById("filemanagerIframe");
+	//     $(iframe).height(window.document.body.scrollHeight);
+	// });
         $scope.setTemplate = function(name) {
             $scope.viewTemplate = $cookies.viewTemplate = name;
         };
