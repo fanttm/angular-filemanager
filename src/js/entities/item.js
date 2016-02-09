@@ -63,6 +63,7 @@
             return deferred.resolve(data);
         };
 
+        // 该函数已经没有实际用处了
         Item.prototype.createFolder = function() {
             var self = this;
             var deferred = $q.defer();
@@ -72,17 +73,18 @@
                 name: self.tempModel.name
             }};
 
-            self.inprocess = true;
+            self.inprocess = false;
             self.error = '';
-            $http.post(fileManagerConfig.createFolderUrl, data).success(function(data) {
-                self.deferredHandler(data, deferred);
-            }).error(function(data) {
-                self.deferredHandler(data, deferred, $translate.instant('error_creating_folder'));
-            })['finally'](function() {
-                self.inprocess = false;
-            });
+
+            // $http.post(fileManagerConfig.createFolderUrl, data).success(function(data) {
+            //     self.deferredHandler(data, deferred);
+            // }).error(function(data) {
+            //     self.deferredHandler(data, deferred, $translate.instant('error_creating_folder'));
+            // })['finally'](function() {
+            //     self.inprocess = false;
+            // });
         
-            return deferred.promise;
+            // return deferred.promise;
         };
 
         Item.prototype.rename = function() {
@@ -95,13 +97,13 @@
             }};
             self.inprocess = true;
             self.error = '';
-            $http.post(fileManagerConfig.renameUrl, data).success(function(data) {
-                self.deferredHandler(data, deferred);
-            }).error(function(data) {
-                self.deferredHandler(data, deferred, $translate.instant('error_renaming'));
-            })['finally'](function() {
-                self.inprocess = false;
-            });
+            // $http.post(fileManagerConfig.renameUrl, data).success(function(data) {
+            //     self.deferredHandler(data, deferred);
+            // }).error(function(data) {
+            //     self.deferredHandler(data, deferred, $translate.instant('error_renaming'));
+            // })['finally'](function() {
+            //     self.inprocess = false;
+            // });
             return deferred.promise;
         };
 

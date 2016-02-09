@@ -14,6 +14,69 @@
             this.error = '';
         };
 
+        FileNavigator.prototype.setFileSystemData = function(params) {
+            var filesystemData = this.basedata;
+            var that = this;
+
+            var now = moment().format('YYYY-MM-DD HH:mm:ss');
+
+            var myAddFolder = function(destPath, folderName) {
+                // console.log(destPath, name, type)
+                var res = that.getPathFileList(destPath);
+                var subdir = res.result;
+                subdir.push({
+                    "name": folderName,
+                    "createtime": now,
+                    "updatetime": now,
+                    "type": "dir",
+                    "subdir": []
+                });
+            }
+
+            var myAddFile = function(destPath, fileName) {
+                var res = that.getPathFileList(destPath);
+                var subdir = res.result;
+                subdir.push({
+                    "name": fileName,
+                    "createtime": now,
+                    "updatetime": now,
+                    "type": "file"
+                });
+            }
+
+            var myRename = function(destPath, newName, oldName) {
+
+            }
+
+            var myMove = function(destPath, oldPath, name) {
+
+            }
+
+            var myDelete = function(destPath, name) {
+
+            }
+
+            switch (params.mode) {
+                case 'addfolder':
+                    myAddFolder(params.path, params.name);
+                    break;
+                case 'addfile':
+                    myAddFile(params.path, params.name);
+                    break;
+                case 'rename':
+                    myRename(params.newPath, params.newName, params.oldName);
+                    break;
+                case 'move':
+                    myMove(params.newPath, params.oldPath, params.name);
+                    break;
+                case 'delete':
+                    myDelete(params.destPath, params.name);
+                    break;
+                default:
+                    break;
+            }
+        };
+
         FileNavigator.prototype.getPathFileList = function(path) {
             var filesystemData = this.basedata;
 
@@ -154,6 +217,7 @@
 
             !this.history.length && this.history.push({name: '', nodes: []});
             flatten(this.history[0], flatNodes);
+            console.log(flatNodes, path)
             selectedNode = findNode(flatNodes, path);
             selectedNode.nodes = [];
 

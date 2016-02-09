@@ -147,10 +147,18 @@
                 item.error = $translate.instant('error_invalid_filename');
                 return false;
             }
-            item.rename().then(function() {
-                $scope.fileNavigator.refresh();
-                $scope.modal('rename', true);
-            });
+            var params = {
+                mode: 'rename',
+                path: item.model.fullPath(),
+                newPath: item.tempModel.fullPath()
+            }
+            $scope.fileNavigator.setFileSystemData(params);
+            $scope.fileNavigator.refresh();
+            $scope.modal('rename', true);
+            // item.rename().then(function() {
+            //     $scope.fileNavigator.refresh();
+            //     $scope.modal('rename', true);
+            // });
         };
 
         $scope.createFolder = function(item) {
@@ -158,10 +166,41 @@
             item.tempModel.type = 'dir';
             item.tempModel.path = $scope.fileNavigator.currentPath;
             if (name && !$scope.fileNavigator.fileNameExists(name)) {
-                item.createFolder().then(function() {
-                    $scope.fileNavigator.refresh();
-                    $scope.modal('newfolder', true);
-                });
+                // item.createFolder().then(function() {
+                //     $scope.fileNavigator.refresh();
+                //     $scope.modal('newfolder', true);
+                // });
+                var params = {
+                    mode: 'addfolder',
+                    path: item.tempModel.path.join('/'),
+                    name: item.tempModel.name
+                };
+                $scope.fileNavigator.setFileSystemData(params);                
+                $scope.fileNavigator.refresh();
+                $scope.modal('newfolder', true);
+            } else {
+                item.error = $translate.instant('error_invalid_filename');
+                return false;
+            }
+        };
+
+        $scope.createFile = function(item) {
+            var name = item.tempModel.name && item.tempModel.name.trim();
+            item.tempModel.type = 'file';
+            item.tempModel.path = $scope.fileNavigator.currentPath;
+            if (name && !$scope.fileNavigator.fileNameExists(name)) {
+                // item.createFolder().then(function() {
+                //     $scope.fileNavigator.refresh();
+                //     $scope.modal('newfolder', true);
+                // });
+                var params = {
+                    mode: 'addfile',
+                    path: item.tempModel.path.join('/'),
+                    name: item.tempModel.name
+                };
+                $scope.fileNavigator.setFileSystemData(params);                
+                $scope.fileNavigator.refresh();
+                $scope.modal('newfile', true);
             } else {
                 item.error = $translate.instant('error_invalid_filename');
                 return false;
