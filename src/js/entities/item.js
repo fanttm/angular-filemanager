@@ -63,6 +63,11 @@
             return deferred.resolve(data);
         };
 
+        // 判断两个Item是否相同（指向相同的路径文件）
+        Item.prototype.equal = function(otherItem) {
+            return (this.model.fullPath() === otherItem.model.fullPath());
+        };
+
         // 该函数已经没有实际用处了
         Item.prototype.createFolder = function() {
             var self = this;

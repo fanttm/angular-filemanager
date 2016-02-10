@@ -161,13 +161,12 @@
         FileNavigator.prototype.refresh = function() {
             var self = this;
             var path = self.currentPath.join('/');
-            // console.log(self.currentPath, path)
             var data = self.list()
             self.fileList = (data.result || []).map(function(file) {
                 return new Item(file, self.currentPath);
             });
             self.buildTree(path);
-            
+
             // return self.list().then(function(data) {
             //     console.log(data)
             //     self.fileList = (data.result || []).map(function(file) {
@@ -176,7 +175,8 @@
             //     self.buildTree(path);
             // });
         };
-        
+
+        // 构建目录树
         FileNavigator.prototype.buildTree = function(path) {
             var flatNodes = [], selectedNode = {};
 
@@ -216,10 +216,10 @@
             }
 
             !this.history.length && this.history.push({name: '', nodes: []});
-            flatten(this.history[0], flatNodes);
-            console.log(flatNodes, path)
-            selectedNode = findNode(flatNodes, path);
-            selectedNode.nodes = [];
+            // 暂时注释以下三行代码，目前看selectedNode没有用途
+            // flatten(this.history[0], flatNodes);
+            // selectedNode = findNode(flatNodes, path);
+            // selectedNode.nodes = [];
 
             for (var o in this.fileList) {
                 var item = this.fileList[o];
