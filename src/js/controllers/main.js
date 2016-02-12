@@ -149,17 +149,37 @@
             }
             var params = {
                 mode: 'rename',
-                path: item.model.fullPath(),
-                newPath: item.tempModel.fullPath()
+                path: (item.model.path.join('/') + item.model.name),
+                newName: item.tempModel.name
             }
             $scope.fileNavigator.setFileSystemData(params);
             $scope.fileNavigator.refresh();
             $scope.modal('rename', true);
+            
             // item.rename().then(function() {
             //     $scope.fileNavigator.refresh();
             //     $scope.modal('rename', true);
             // });
         };
+
+        $scope.move = function(item) {
+            // var samePath = item.tempModel.path.join() === item.model.path.join();
+            // if (samePath && $scope.fileNavigator.fileNameExists(item.tempModel.name)) {
+            //     item.error = $translate.instant('error_invalid_filename');
+            //     return false;
+            // }
+            var params = {
+                mode: 'move',
+                name: item.model.name,
+                path: item.model.path.join('/'),
+                newPath: item.tempModel.path.slice(1).join('/')
+            }
+            console.log(item.tempModel.path, item.model.path)
+            $scope.fileNavigator.setFileSystemData(params);
+            $scope.fileNavigator.currentPath = item.tempModel.path.slice(1);
+            $scope.fileNavigator.refresh();
+            $scope.modal('move', true);            
+        }
 
         $scope.createFolder = function(item) {
             var name = item.tempModel.name && item.tempModel.name.trim();
@@ -205,6 +225,11 @@
                 item.error = $translate.instant('error_invalid_filename');
                 return false;
             }
+        };
+
+        $scope.selectRoot = function(temp) {
+            temp.tempModel.path = [];
+            $('#selector').modal('hide');
         };
 
         $scope.uploadFiles = function() {

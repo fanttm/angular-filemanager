@@ -21,9 +21,9 @@
             var now = moment().format('YYYY-MM-DD HH:mm:ss');
 
             var myAddFolder = function(destPath, folderName) {
-                // console.log(destPath, name, type)
                 var res = that.getPathFileList(destPath);
                 var subdir = res.result;
+                console.log(destPath, res.itself, res.result)
                 subdir.push({
                     "name": folderName,
                     "createtime": now,
@@ -44,12 +44,23 @@
                 });
             }
 
-            var myRename = function(destPath, newName, oldName) {
-
+            var myRename = function(destPath, newName) {
+                var res = that.getPathFileList(destPath);
+                var item = res.itself;
+                item.name = newName;
             }
 
-            var myMove = function(destPath, oldPath, name) {
-
+            var myMove = function(name, path, newPath) {
+                var pathname = path ? (path+'/'+name) : name;
+                var res = that.getPathFileList(pathname);
+                var newRes = that.getPathFileList(newPath);
+                var targetDir = newRes.result;
+                var file = res.itself;
+                // console.log("path="+path, name, newPath, targetDir, file)
+                // 添加原先的文件（夹）到目标文件夹
+                targetDir.push(file);
+                // 删除原先的文件（夹）
+                that.deleteFile(pathname);
             }
 
             var myDelete = function(destPath, name) {
@@ -64,10 +75,10 @@
                     myAddFile(params.path, params.name);
                     break;
                 case 'rename':
-                    myRename(params.newPath, params.newName, params.oldName);
+                    myRename(params.path, params.newName);
                     break;
                 case 'move':
-                    myMove(params.newPath, params.oldPath, params.name);
+                    myMove(params.name, params.path, params.newPath);
                     break;
                 case 'delete':
                     myDelete(params.destPath, params.name);
@@ -94,7 +105,7 @@
                     if (currentPath[level]==item.name) {
                         currentLevelMatch = true;
                         if (currentPath.length==(level+1)) {
-                            return { "result" : item.subdir }
+                            return { "result" : item.subdir, "itself": item }
                         } else {
                             return getPathFileListRecursive(item.subdir, currentPath, level+1)
                         }
@@ -104,9 +115,43 @@
             };
 
             var currentPath = path.split('/');
-            // console.log(currentPath)
             var level = 0;
             return getPathFileListRecursive(filesystemData, currentPath, level)
+        };
+
+        FileNavigator.prototype.deleteFile = function(path) {
+            var filesystemData = this.basedata;
+
+            if (!path) return null;
+
+            /*
+                subdir是存放目录或文件的数组
+                currentPath是存放路径的数组，将路径字符串分割而成的数组，如 joomla/java，分割成 ['joomla', 'java']
+                level表示当前对比的currentPath的深度，如果当前深度未能找到匹配项，则返回错误；如果已经找到匹配项，并且已经达到currentPath的最大深度，则返回匹配项的subdir数组内容
+             */
+            var deleteFileRecursive = function(subdir, currentPath, level) {
+                for (var i=0,len=subdir.length; i<len; i++) {
+                    var item = subdir[i];
+                    var currentLevelMatch = false;
+                    // 每个currentPath路径都需要找到匹配项
+                    if (currentPath[level]==item.name) {
+                        currentLevelMatch = true;
+                        // 如果currentPath的深度已经到达
+                        if (currentPath.length==(level+1)) {
+                            // 删除所找到的项
+                            return subdir.splice(i,1)
+                        } else {
+                            return deleteFileRecursive(item.subdir, currentPath, level+1)
+                        }
+                    }
+                    // 如果任意一个路径没有找到匹配，都是错误的
+                    if (i==(len-1) && !currentLevelMatch) return { "result" : null }
+                }
+            };
+
+            var currentPath = path.split('/');
+            var level = 0;
+            return deleteFileRecursive(filesystemData, currentPath, level)
         };
 
         FileNavigator.prototype.deferredHandler = function(data, deferred, defaultMsg) {
@@ -176,56 +221,96 @@
             // });
         };
 
-        // 构建目录树
         FileNavigator.prototype.buildTree = function(path) {
-            var flatNodes = [], selectedNode = {};
+            var self = this;
+            var filesystemData = self.basedata;
 
-            function recursive(parent, item, path) {
-                var absName = path ? (path + '/' + item.model.name) : item.model.name;
-                if (parent.name.trim() && path.trim().indexOf(parent.name) !== 0) {
-                    parent.nodes = [];
-                }
-                if (parent.name !== path) {
-                    for (var i in parent.nodes) {
-                        recursive(parent.nodes[i], item, path);
-                    }
-                } else {
-                    for (var e in parent.nodes) {
-                        if (parent.nodes[e].name === absName) {
-                            return;
-                        }
-                    }
+            this.history = [];
+            this.history.push({name: '', nodes: []})
+
+            // 如果
+            var recursive = function(parent, subdir, currentPath, level) {
+                for (var i=0,len=subdir.length; i<len; i++) {
+                    
+                    var file = subdir[i];
+
+                    // 目前仅在目录树中显示目录（不显示文件）
+                    if (file.type!=="dir") continue;
+
+                    var currentPathArr = (level===0) ? [""] : currentPath.slice(0, level)
+                    var currentPathStr = currentPathArr.join('/')
+                    var item = new Item(file, currentPathArr);
+                    var absName = (currentPathStr ? (currentPathStr+'/') : "") + item.model.name;
+
                     parent.nodes.push({item: item, name: absName, nodes: []});
+
+                    if (absName.trim() && path.trim().indexOf(absName) === 0) {
+                        var nodesLen = parent.nodes.length;
+                        recursive(parent.nodes[nodesLen-1], file.subdir, currentPath, level+1);
+                    }
+
+                    parent.nodes = parent.nodes.sort(function(a, b) {
+                        return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : a.name.toLowerCase() === b.name.toLowerCase() ? 0 : 1;
+                    });
                 }
-                parent.nodes = parent.nodes.sort(function(a, b) {
-                    return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : a.name.toLowerCase() === b.name.toLowerCase() ? 0 : 1;
-                });
-            }
+            };
 
-            function flatten(node, array) {
-                array.push(node);
-                for (var n in node.nodes) {
-                    flatten(node.nodes[n], array);
-                }
-            }
+            var currentPath = path.split('/');
+            var level = 0;
+            recursive(this.history[0], filesystemData, currentPath, level)
+        }
 
-            function findNode(data, path) {
-                return data.filter(function (n) {
-                    return n.name === path;
-                })[0];
-            }
+        // 构建目录树
+        // FileNavigator.prototype.buildTree = function(path) {
+        //     var flatNodes = [], selectedNode = {};
 
-            !this.history.length && this.history.push({name: '', nodes: []});
-            // 暂时注释以下三行代码，目前看selectedNode没有用途
-            // flatten(this.history[0], flatNodes);
-            // selectedNode = findNode(flatNodes, path);
-            // selectedNode.nodes = [];
+        //     function recursive(parent, item, path) {
+        //         var absName = path ? (path + '/' + item.model.name) : item.model.name;
+        //         if (parent.name.trim() && path.trim().indexOf(parent.name) !== 0) {
+        //             parent.nodes = [];
+        //         }
+        //         if (parent.name !== path) {
+        //             for (var i in parent.nodes) {
+        //                 recursive(parent.nodes[i], item, path);
+        //             }
+        //         } else {
+        //             for (var e in parent.nodes) {
+        //                 if (parent.nodes[e].name === absName) {
+        //                     return;
+        //                 }
+        //             }
+        //             parent.nodes.push({item: item, name: absName, nodes: []});
+        //         }
+        //         parent.nodes = parent.nodes.sort(function(a, b) {
+        //             return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : a.name.toLowerCase() === b.name.toLowerCase() ? 0 : 1;
+        //         });
+        //     }
 
-            for (var o in this.fileList) {
-                var item = this.fileList[o];
-                item.isFolder() && recursive(this.history[0], item, path);
-            }
-        };
+        //     function flatten(node, array) {
+        //         array.push(node);
+        //         for (var n in node.nodes) {
+        //             flatten(node.nodes[n], array);
+        //         }
+        //     }
+
+        //     function findNode(data, path) {
+        //         return data.filter(function (n) {
+        //             return n.name === path;
+        //         })[0];
+        //     }
+
+        //     !this.history.length && this.history.push({name: '', nodes: []});
+        //     // 暂时注释以下三行代码，目前看selectedNode没有用途
+        //     // flatten(this.history[0], flatNodes);
+        //     // selectedNode = findNode(flatNodes, path);
+        //     // selectedNode.nodes = [];
+
+        //     for (var o in this.fileList) {
+        //         var item = this.fileList[o];
+        //         item.isFolder() && recursive(this.history[0], item, path);
+        //     }
+        //     console.log(this.history)
+        // };
 
         FileNavigator.prototype.folderClick = function(item) {
             this.currentPath = [];
@@ -254,6 +339,10 @@
                     return true;
                 }
             }
+        };
+
+        FileNavigator.prototype.fileNameExistsInTarget = function(targetPath) {
+
         };
 
         FileNavigator.prototype.listHasFolders = function() {

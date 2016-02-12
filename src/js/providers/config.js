@@ -27,6 +27,7 @@
                 rename: true,
                 copy: true,
                 edit: true,
+                move: true,
                 changePermissions: true,
                 compress: true,
                 compressChooseName: true,
