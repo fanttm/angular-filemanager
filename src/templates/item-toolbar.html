@@ -1,9 +1,15 @@
 <div ng-show="!item.inprocess">
+    <button class="btn btn-sm btn-default" ng-show="config.allowedActions.newwindow && !item.isFolder()" ng-click="openNewWindow(item)" title="{{'newwindow' | translate}}">
+        <i class="glyphicon glyphicon-new-window"></i>
+    </button>
     <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#rename" ng-show="config.allowedActions.rename" ng-click="touch(item)" title="{{'rename' | translate}}">
         <i class="glyphicon glyphicon-edit"></i>
     </button>
     <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#copy" ng-show="config.allowedActions.copy && !item.isFolder()" ng-click="touch(item)" title="{{'copy' | translate}}">
         <i class="glyphicon glyphicon-log-out"></i>
+    </button>
+    <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#move" ng-show="config.allowedActions.move" ng-click="touch(item)" title="{{'move' | translate}}">
+        <i class="glyphicon glyphicon-random"></i>
     </button>
     <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#edit" ng-show="config.allowedActions.edit && item.isEditable()" ng-click="item.getContent(); touch(item)" title="{{'edit' | translate}}">
         <i class="glyphicon glyphicon-pencil"></i>

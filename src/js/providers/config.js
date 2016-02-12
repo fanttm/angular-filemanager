@@ -6,6 +6,14 @@
             appName: 'https://github.com/joni2back/angular-filemanager',
             defaultLang: 'zh',
 
+            mindmapUrl: '/mindmap/',
+
+            saveUrl: '/api/mindmap/save_file_system',
+
+            createUrl: '/api/mindmap/create',
+            updateNameUrl: '/api/mindmap/rename',
+            deleteUrl: '/api/mindmap/remove',
+
             listUrl: 'bridges/php/handler.php',
             uploadUrl: 'bridges/php/handler.php',
             renameUrl: 'bridges/php/handler.php',
@@ -25,16 +33,17 @@
             allowedActions: {
                 upload: true,
                 rename: true,
-                copy: true,
-                edit: true,
+                copy: false,
+                edit: false,
                 move: true,
-                changePermissions: true,
-                compress: true,
+                changePermissions: false,
+                compress: false,
                 compressChooseName: true,
                 extract: true,
-                download: true,
-                preview: true,
-                remove: true
+                download: false,
+                preview: false,
+                remove: true,
+                newwindow: true
             },
 
             previewImagesInModal: true,

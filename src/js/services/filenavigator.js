@@ -23,7 +23,7 @@
             var myAddFolder = function(destPath, folderName) {
                 var res = that.getPathFileList(destPath);
                 var subdir = res.result;
-                console.log(destPath, res.itself, res.result)
+                // console.log(destPath, res.itself, res.result)
                 subdir.push({
                     "name": folderName,
                     "createtime": now,
@@ -45,6 +45,7 @@
             }
 
             var myRename = function(destPath, newName) {
+                // console.log(destPath, newName)
                 var res = that.getPathFileList(destPath);
                 var item = res.itself;
                 item.name = newName;
@@ -63,8 +64,9 @@
                 that.deleteFile(pathname);
             }
 
-            var myDelete = function(destPath, name) {
-
+            var myDelete = function(path, name) {
+                var pathname = path ? (path+'/'+name) : name;
+                that.deleteFile(pathname);
             }
 
             switch (params.mode) {
@@ -75,17 +77,29 @@
                     myAddFile(params.path, params.name);
                     break;
                 case 'rename':
-                    myRename(params.path, params.newName);
+                    myRename(params.path, params.newName, params.id);
                     break;
                 case 'move':
                     myMove(params.name, params.path, params.newPath);
                     break;
-                case 'delete':
-                    myDelete(params.destPath, params.name);
+                case 'remove':
+                    myDelete(params.path, params.name, params.id);
                     break;
                 default:
                     break;
             }
+
+            that.saveFileSystemData(filesystemData);
+        };
+
+        FileNavigator.prototype.saveFileSystemData = function(fileSD) {
+            $http.post(fileManagerConfig.saveUrl, fileSD).success(function(data) {
+                console.log(data)
+            }).error(function(data) {
+                console.log(data, fileManagerConfig.saveUrl, fileSD)
+            })['finally'](function() {
+                self.requesting = false;
+            });
         };
 
         FileNavigator.prototype.getPathFileList = function(path) {
@@ -175,7 +189,7 @@
 
         FileNavigator.prototype.list = function() {
             var self = this;
-            var deferred = $q.defer();
+            // var deferred = $q.defer();
             var path = self.currentPath.join('/');
             var data = {params: {
                 mode: 'list',
@@ -332,7 +346,14 @@
             this.refresh();
         };
 
-        FileNavigator.prototype.fileNameExists = function(fileName) {
+        FileNavigator.prototype.fileNameExists = function(fileName, filePath) {
+            // console.log(filePath!=undefined, fileName, filePath)
+            if (filePath!=undefined) {
+                var fp = filePath ? (filePath+'/'+fileName) : fileName;
+                var res = this.getPathFileList(filePath+fileName);
+                if (res.result!=null) return true;
+                return false;
+            }
             for (var item in this.fileList) {
                 item = this.fileList[item];
                 if (fileName.trim && item.model.name.trim() === fileName.trim()) {
