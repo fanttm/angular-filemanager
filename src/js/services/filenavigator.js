@@ -69,6 +69,16 @@
                 that.deleteFile(pathname);
             }
 
+            var saveToServer = function(fileSD) {
+                $http.post(fileManagerConfig.saveUrl, fileSD).success(function(data) {
+                    console.log(data)
+                }).error(function(data) {
+                    console.log(data, fileManagerConfig.saveUrl, fileSD)
+                })['finally'](function() {
+                    self.requesting = false;
+                });
+            }
+
             switch (params.mode) {
                 case 'addfolder':
                     myAddFolder(params.path, params.name);
@@ -89,17 +99,7 @@
                     break;
             }
 
-            that.saveFileSystemData(filesystemData);
-        };
-
-        FileNavigator.prototype.saveFileSystemData = function(fileSD) {
-            $http.post(fileManagerConfig.saveUrl, fileSD).success(function(data) {
-                console.log(data)
-            }).error(function(data) {
-                console.log(data, fileManagerConfig.saveUrl, fileSD)
-            })['finally'](function() {
-                self.requesting = false;
-            });
+            that.saveToServer(filesystemData);
         };
 
         FileNavigator.prototype.getPathFileList = function(path) {
