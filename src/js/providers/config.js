@@ -8,7 +8,7 @@
 
             mindmapUrl: '/mindmap/',
 
-            saveUrl: '/api/mindmap/saveFileSystem',
+            saveUrl: '/api/mindmap/saveFileSystem',         // 为了减少服务端解析较大JSON数据的开销，单独增加了SAVE接口
             
             createFileUrl: '/api/mindmap/fileSystem',
             renameUrl: '/api/mindmap/fileSystem',

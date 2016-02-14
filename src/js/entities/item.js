@@ -4,14 +4,14 @@
 
         var Item = function(model, path) {
             var rawModel = {
-                id: model && model.id || null,
+                id: model && model.id || null,                              // 新增
                 name: model && model.name || '',
                 path: path || [],
                 type: model && model.type || 'file',
                 size: model && parseInt(model.size || 0),
                 date: parseMySQLDate(model && model.date),
-                createtime: parseMySQLDate(model && model.createtime),
-                updatetime: parseMySQLDate(model && model.updatetime),
+                createtime: parseMySQLDate(model && model.createtime),      // 新增
+                updatetime: parseMySQLDate(model && model.updatetime),      // 新增
                 perms: new Chmod(model && model.rights),
                 content: model && model.content || '',
                 recursive: false,
@@ -64,35 +64,35 @@
             return deferred.resolve(data);
         };
 
-        // 判断两个Item是否相同（指向相同的路径文件）
+        // 判断两个Item是否相同（指向相同路径下的文件）
         Item.prototype.equal = function(otherItem) {
             return (this.model.fullPath() === otherItem.model.fullPath());
         };
 
-        // 该函数已经没有实际用处了
-        Item.prototype.createFolder = function() {
-            var self = this;
-            var deferred = $q.defer();
-            var data = {params: {
-                mode: 'addfolder',
-                path: self.tempModel.path.join('/'),
-                name: self.tempModel.name
-            }};
+        // Item.prototype.createFolder = function() {
+        //     var self = this;
+        //     var deferred = $q.defer();
+        //     var data = {params: {
+        //         mode: 'addfolder',
+        //         path: self.tempModel.path.join('/'),
+        //         name: self.tempModel.name
+        //     }};
 
-            self.inprocess = false;
-            self.error = '';
+        //     self.inprocess = false;
+        //     self.error = '';
 
-            // $http.post(fileManagerConfig.createFolderUrl, data).success(function(data) {
-            //     self.deferredHandler(data, deferred);
-            // }).error(function(data) {
-            //     self.deferredHandler(data, deferred, $translate.instant('error_creating_folder'));
-            // })['finally'](function() {
-            //     self.inprocess = false;
-            // });
+        //     $http.post(fileManagerConfig.createFolderUrl, data).success(function(data) {
+        //         self.deferredHandler(data, deferred);
+        //     }).error(function(data) {
+        //         self.deferredHandler(data, deferred, $translate.instant('error_creating_folder'));
+        //     })['finally'](function() {
+        //         self.inprocess = false;
+        //     });
         
-            // return deferred.promise;
-        };
+        //     return deferred.promise;
+        // };
 
+        // 在服务器端创建文件，并获得返回的文件ID
         Item.prototype.createFile = function() {
             var self = this;
             var deferred = $q.defer();
@@ -116,6 +116,7 @@
             return deferred.promise;
         };
 
+        // 在服务端重命名文件
         Item.prototype.rename = function() {
             var self = this;
             var deferred = $q.defer();
@@ -241,6 +242,7 @@
             return deferred.promise;
         };
 
+        // 在服务端删除文件
         Item.prototype.remove = function() {
             var self = this;
             var deferred = $q.defer();

@@ -19,6 +19,8 @@
         $scope.uploadFileList = [];
         $scope.viewTemplate = $cookies.viewTemplate || 'main-table.html';
 
+        // MYCOMMENT angular的$watch用法，监控非model的变量
+        // 
         // $scope.$watch(function() {
         //     return window.document.body.scrollHeight;
         // }, function() {
@@ -43,11 +45,13 @@
             $scope.temp = item;
         };
 
+        // 打开脑图
         $scope.openNewWindow = function(item) {
             var mindmapUrl = fileManagerConfig.mindmapUrl + item.model.id;
             window.open(mindmapUrl);
         };
 
+        // 此处默认仅有文件夹和文件两种格式，暂不考虑图片和文件编辑等
         $scope.smartClick = function(item) {
             if (item.isFolder()) {
                 return $scope.fileNavigator.folderClick(item);
@@ -148,6 +152,7 @@
                 path: item.model.path.join('/'),
                 name: item.model.name
             }
+            // COMMENT_OFFLINE
             item.remove().then(function() {                
                 $scope.fileNavigator.setFileSystemData(params);
                 $scope.fileNavigator.refresh();
@@ -167,6 +172,7 @@
                 path: (fp ? (fp+'/'+item.model.name) : item.model.name),
                 newName: item.tempModel.name
             }
+            // COMMENT_OFFLINE
             item.rename().then(function() {
                 $scope.fileNavigator.setFileSystemData(params);
                 $scope.fileNavigator.refresh();
@@ -174,6 +180,7 @@
             });
         };
 
+        // MYCOMMENT 将原有的“重命名/移动”两个合并的功能，分割成两个单独的功能，以便于用户理解使用
         $scope.move = function(item) {
             var samePath = item.tempModel.path.join() === item.model.path.join();
             if (samePath || $scope.fileNavigator.fileNameExists(item.tempModel.name, item.tempModel.path.slice(1).join('/'))) {
@@ -216,11 +223,13 @@
             }
         };
 
+        // 新增了创建文件的功能
         $scope.createFile = function(item) {
             var name = item.tempModel.name && item.tempModel.name.trim();
             item.tempModel.type = 'file';
             item.tempModel.path = $scope.fileNavigator.currentPath;
-            if (name && !$scope.fileNavigator.fileNameExists(name)) {                
+            if (name && !$scope.fileNavigator.fileNameExists(name)) {
+                // COMMENT_OFFLINE
                 item.createFile().then(function(data) {
                     var params = {
                         id: data.id,
@@ -238,6 +247,10 @@
             }
         };
 
+        // MYCOMMENT 
+        // 为了原有的目录展示模式保持不变，即无法在文件（夹）显示区域显示ROOT文件夹；而在文件（夹）移动操作中，
+        // 如果无法选中ROOT文件夹，则无法将文件（夹）移动到ROOT目录下；
+        // 因此增加该功能，直接指定待移动的文件（夹）的目标路径
         $scope.selectRoot = function(temp) {
             temp.tempModel.path = [];
             $('#selector').modal('hide');
