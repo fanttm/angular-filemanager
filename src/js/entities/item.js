@@ -4,7 +4,7 @@
 
         var Item = function(model, path) {
             var rawModel = {
-                id: model && model.id,
+                id: model && model.id || null,
                 name: model && model.name || '',
                 path: path || [],
                 type: model && model.type || 'file',
@@ -93,23 +93,50 @@
             // return deferred.promise;
         };
 
+        Item.prototype.createFile = function() {
+            var self = this;
+            var deferred = $q.defer();
+
+            var data = {
+                mode: 'addfile',
+                name: self.tempModel.name
+            };
+
+            self.inprocess = false;
+            self.error = '';
+
+            $http.post(fileManagerConfig.createFileUrl, data).success(function(data) {
+                self.deferredHandler(data, deferred);
+            }).error(function(data) {
+                self.deferredHandler(data, deferred, $translate.instant('error_creating_file'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+            
+            return deferred.promise;
+        };
+
         Item.prototype.rename = function() {
             var self = this;
             var deferred = $q.defer();
-            var data = {params: {
+
+            var data = {
                 mode: 'rename',
-                path: self.model.fullPath(),
-                newPath: self.tempModel.fullPath()
-            }};
+                id: self.model.id,
+                name: self.tempModel.name
+            };
+
             self.inprocess = true;
             self.error = '';
-            // $http.post(fileManagerConfig.renameUrl, data).success(function(data) {
-            //     self.deferredHandler(data, deferred);
-            // }).error(function(data) {
-            //     self.deferredHandler(data, deferred, $translate.instant('error_renaming'));
-            // })['finally'](function() {
-            //     self.inprocess = false;
-            // });
+
+            $http.post(fileManagerConfig.renameUrl, data).success(function(data) {
+                self.deferredHandler(data, deferred);
+            }).error(function(data) {
+                self.deferredHandler(data, deferred, $translate.instant('error_renaming'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+
             return deferred.promise;
         };
 
@@ -217,13 +244,15 @@
         Item.prototype.remove = function() {
             var self = this;
             var deferred = $q.defer();
-            var data = {params: {
-                mode: 'delete',
-                path: self.tempModel.fullPath()
-            }};
+
+            var data = {
+                mode: 'remove',
+                id: self.model.id
+            };
 
             self.inprocess = true;
             self.error = '';
+
             $http.post(fileManagerConfig.removeUrl, data).success(function(data) {
                 self.deferredHandler(data, deferred);
             }).error(function(data) {
@@ -231,6 +260,7 @@
             })['finally'](function() {
                 self.inprocess = false;
             });
+
             return deferred.promise;
         };
 

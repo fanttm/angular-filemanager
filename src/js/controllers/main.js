@@ -148,14 +148,11 @@
                 path: item.model.path.join('/'),
                 name: item.model.name
             }
-            $scope.fileNavigator.setFileSystemData(params);
-            $scope.fileNavigator.refresh();
-            $scope.modal('delete', true);
-
-            // item.remove().then(function() {
-            //     $scope.fileNavigator.refresh();
-            //     $scope.modal('delete', true);
-            // });
+            item.remove().then(function() {                
+                $scope.fileNavigator.setFileSystemData(params);
+                $scope.fileNavigator.refresh();
+                $scope.modal('delete', true);
+            });
         };
 
         $scope.rename = function(item) {
@@ -170,14 +167,11 @@
                 path: (fp ? (fp+'/'+item.model.name) : item.model.name),
                 newName: item.tempModel.name
             }
-            $scope.fileNavigator.setFileSystemData(params);
-            $scope.fileNavigator.refresh();
-            $scope.modal('rename', true);
-            
-            // item.rename().then(function() {
-            //     $scope.fileNavigator.refresh();
-            //     $scope.modal('rename', true);
-            // });
+            item.rename().then(function() {
+                $scope.fileNavigator.setFileSystemData(params);
+                $scope.fileNavigator.refresh();
+                $scope.modal('rename', true);
+            });
         };
 
         $scope.move = function(item) {
@@ -192,7 +186,7 @@
                 path: item.model.path.join('/'),
                 newPath: item.tempModel.path.slice(1).join('/')     // item.tempModel.path = ["","xxxx","xxxxx"]，所以需要slice(1)
             }
-            console.log(params, item.tempModel.path, item.model.path)
+            // console.log(params, item.tempModel.path, item.model.path)
             $scope.fileNavigator.setFileSystemData(params);
             $scope.fileNavigator.currentPath = item.tempModel.path.slice(1);
             $scope.fileNavigator.refresh();
@@ -226,19 +220,18 @@
             var name = item.tempModel.name && item.tempModel.name.trim();
             item.tempModel.type = 'file';
             item.tempModel.path = $scope.fileNavigator.currentPath;
-            if (name && !$scope.fileNavigator.fileNameExists(name)) {
-                // item.createFolder().then(function() {
-                //     $scope.fileNavigator.refresh();
-                //     $scope.modal('newfolder', true);
-                // });
-                var params = {
-                    mode: 'addfile',
-                    path: item.tempModel.path.join('/'),
-                    name: item.tempModel.name
-                };
-                $scope.fileNavigator.setFileSystemData(params);                
-                $scope.fileNavigator.refresh();
-                $scope.modal('newfile', true);
+            if (name && !$scope.fileNavigator.fileNameExists(name)) {                
+                item.createFile().then(function(data) {
+                    var params = {
+                        id: data.id,
+                        mode: 'addfile',
+                        path: item.tempModel.path.join('/'),
+                        name: item.tempModel.name
+                    };
+                    $scope.fileNavigator.setFileSystemData(params);                
+                    $scope.fileNavigator.refresh();
+                    $scope.modal('newfile', true);
+                });
             } else {
                 item.error = $translate.instant('error_invalid_filename');
                 return false;

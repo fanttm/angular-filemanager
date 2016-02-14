@@ -8,10 +8,11 @@
 
             mindmapUrl: '/mindmap/',
 
-            saveUrl: '/api/mindmap/fileSystem',
-            createUrl: '/api/mindmap/fileSystem',
+            saveUrl: '/api/mindmap/saveFileSystem',
+            
+            createFileUrl: '/api/mindmap/fileSystem',
             renameUrl: '/api/mindmap/fileSystem',
-            deleteUrl: '/api/mindmap/fileSystem',
+            removeUrl: '/api/mindmap/fileSystem',
 
             // listUrl: 'bridges/php/handler.php',
             // uploadUrl: 'bridges/php/handler.php',

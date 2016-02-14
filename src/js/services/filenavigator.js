@@ -25,6 +25,7 @@
                 var subdir = res.result;
                 // console.log(destPath, res.itself, res.result)
                 subdir.push({
+                    "id": null,
                     "name": folderName,
                     "createtime": now,
                     "updatetime": now,
@@ -33,45 +34,23 @@
                 });
             }
 
-            var myAddFile = function(destPath, fileName) {
-                var params = {
-                    mode: 'addfile',
-                    name: fileName
-                };
+            var myAddFile = function(destPath, fileName, fileId) {
+                var res = that.getPathFileList(destPath);
+                var subdir = res.result;
 
-                $http.post(fileManagerConfig.createUrl, params).success(function(data) {
-                    var id = data.result.id;
-                    var res = that.getPathFileList(destPath);
-                    var subdir = res.result;
-                    subdir.push({
-                        "id": id,
-                        "name": fileName,
-                        "createtime": now,
-                        "updatetime": now,
-                        "type": "file"
-                    });
-                }).error(function(data) {
-                    
-                })['finally'](function() {
-                    // self.requesting = false;
-                });                
+                subdir.push({
+                    "id": fileId,
+                    "name": fileName,
+                    "createtime": now,
+                    "updatetime": now,
+                    "type": "file"
+                });
             }
 
-            var myRename = function(destPath, id, newName) {
-                var params = {
-                    mode: 'rename',
-                    name: newName
-                };
-
-                $http.post(fileManagerConfig.renameUrl, params).success(function(data) {
-                    var res = that.getPathFileList(destPath);
-                    var item = res.itself;
-                    item.name = newName;
-                }).error(function(data) {
-                    
-                })['finally'](function() {
-                    
-                });
+            var myRename = function(destPath, newName) {
+                var res = that.getPathFileList(destPath);
+                var item = res.itself;
+                item.name = newName;
             }
 
             var myMove = function(name, path, newPath) {
@@ -87,20 +66,9 @@
                 that.deleteFile(pathname);
             }
 
-            var myDelete = function(path, id, name) {
-                var params = {
-                    mode: 'delete',
-                    id: fileId
-                };
-
-                $http.post(fileManagerConfig.deleteUrl, params).success(function(data) {
-                    var pathname = path ? (path+'/'+name) : name;
-                    that.deleteFile(pathname);
-                }).error(function(data) {
-                    
-                })['finally'](function() {
-                    
-                });
+            var myDelete = function(path, name) {
+                var pathname = path ? (path+'/'+name) : name;
+                that.deleteFile(pathname);
             }
 
             switch (params.mode) {
@@ -108,90 +76,32 @@
                     myAddFolder(params.path, params.name);
                     break;
                 case 'addfile':
-                    myAddFile(params.path, params.name);
+                    myAddFile(params.path, params.name, params.id);
                     break;
                 case 'rename':
-                    myRename(params.path, params.id, params.newName);
+                    myRename(params.path, params.newName);
                     break;
                 case 'move':
                     myMove(params.name, params.path, params.newPath);
                     break;
                 case 'remove':
-                    myDelete(params.path, params.id, params.name);
+                    myDelete(params.path, params.name);
                     break;
                 default:
                     break;
             }
-
+            
             that.saveToServer(filesystemData);
         };
 
         FileNavigator.prototype.saveToServer = function(fileSD) {
-            var params = {
-                mode: 'save',
-                filesystem: fileSD
-            };
-
-            $http.post(fileManagerConfig.saveUrl, params).success(function(data) {
+            $http.post(fileManagerConfig.saveUrl, fileSD).success(function(data) {
                 
             }).error(function(data) {
                 
             })['finally'](function() {
                 
             });
-        };
-
-        FileNavigator.prototype.addFileOnServer = function(fileName) {
-            var self = this;
-            var deferred = $q.defer();
-
-            
-
-            return deferred.promise;
-        };
-
-        FileNavigator.prototype.renameOnServer = function(fileId, fileName) {
-            var self = this;
-            var deferred = $q.defer();
-
-            var params = {
-                mode: 'rename',
-                name: fileName
-            };
-
-            self.requesting = true;
-
-            $http.post(fileManagerConfig.renameUrl, params).success(function(data) {
-                self.deferredHandler(data, deferred);
-            }).error(function(data) {
-                self.deferredHandler(data, deferred, 'Unknown error save, check the response');
-            })['finally'](function() {
-                self.requesting = false;
-            });
-
-            return deferred.promise;
-        };
-
-        FileNavigator.prototype.deleteOnServer = function(fileId) {
-            var self = this;
-            var deferred = $q.defer();
-
-            var params = {
-                mode: 'delete',
-                id: fileId
-            };
-
-            self.requesting = true;
-
-            $http.post(fileManagerConfig.deleteUrl, params).success(function(data) {
-                self.deferredHandler(data, deferred);
-            }).error(function(data) {
-                self.deferredHandler(data, deferred, 'Unknown error save, check the response');
-            })['finally'](function() {
-                self.requesting = false;
-            });
-
-            return deferred.promise;
         };
 
         FileNavigator.prototype.getPathFileList = function(path) {
