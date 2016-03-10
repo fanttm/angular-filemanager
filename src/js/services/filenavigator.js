@@ -160,6 +160,11 @@
 
             if (!pathStr) return null;
 
+            /*
+                subdir是存放目录或文件的数组
+                currentPath是存放路径的数组，将路径字符串分割而成的数组，如 joomla/java，分割成 ['joomla', 'java']
+                level表示当前对比的currentPath的深度，如果当前深度未能找到匹配项，则返回错误；如果已经找到匹配项，并且已经达到currentPath的最大深度，则返回匹配项的subdir数组内容
+             */
             var deleteFileRecursive = function(subdir, currentPath, level) {
                 for (var i=0,len=subdir.length; i<len; i++) {
                     var item = subdir[i];

@@ -69,6 +69,7 @@
             return (this.model.fullPath() === otherItem.model.fullPath());
         };
 
+        // 该函数已经没有实际用处了
         // Item.prototype.createFolder = function() {
         //     var self = this;
         //     var deferred = $q.defer();
@@ -120,6 +121,12 @@
         Item.prototype.rename = function() {
             var self = this;
             var deferred = $q.defer();
+
+            // 如果是文件夹，则无需修改名称，直接返回
+            if (this.isFolder()) {
+                deferred.resolve();
+                return deferred.promise;
+            }
 
             var data = {
                 mode: 'rename',
